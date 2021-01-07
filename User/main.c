@@ -34,6 +34,12 @@ int main(void)
 
 	while(1)
 	{
+//		ClearScreen();
+//		SetFontSize(1);
+//		DrawString(0,0,"test");
+//		UpdateScreen();
+//		DelayMs(1000);
+//		DrawFillCircle(20,20,10);
 		demo();	
 	}
 }

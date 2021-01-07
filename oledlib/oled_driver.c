@@ -90,6 +90,108 @@ void OLED_FILL(unsigned char BMP[])
 
 #elif  (TRANSFER_METHOD ==SW_IIC)
 
+	#define OLED_SCLK_LOW()					GPIO_ResetBits(IIC_GPIOX, IIC_SCL_Pin_X)	//低电平复位
+	#define OLED_SCLK_HIGH()					GPIO_SetBits(IIC_GPIOX, IIC_SCL_Pin_X)
+	 
+	#define OLED_SDIN_LOW()					GPIO_ResetBits(IIC_GPIOX, IIC_SDA_Pin_X)	//低电平复位
+	#define OLED_SDIN_HIGH()					GPIO_SetBits(IIC_GPIOX, IIC_SDA_Pin_X)	
+	
+	
+void I2C_Configuration(void)
+{
+//	I2C_InitTypeDef  I2C_InitStructure;
+	GPIO_InitTypeDef  GPIO_InitStructure; 
+
+//	RCC_APB1PeriphClockCmd(IIC_RCC_APB1Periph_I2CX,ENABLE);
+	RCC_APB2PeriphClockCmd(IIC_RCC_APB2Periph_GPIOX,ENABLE);
+
+	GPIO_InitStructure.GPIO_Pin =  IIC_SCL_Pin_X | IIC_SDA_Pin_X;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;//  输出
+	GPIO_Init(IIC_GPIOX, &GPIO_InitStructure);
+
+}
+
+void IIC_Start()
+{
+
+	OLED_SCLK_HIGH() ;
+	OLED_SDIN_HIGH();
+	OLED_SDIN_LOW();
+	OLED_SCLK_LOW();
+}
+
+/**********************************************
+//IIC Stop
+**********************************************/
+void IIC_Stop()
+{
+
+	OLED_SCLK_LOW();
+	OLED_SDIN_LOW();
+	OLED_SDIN_HIGH();
+	OLED_SCLK_HIGH() ;
+}
+
+void I2C_WriteByte(unsigned char IIC_Byte)
+{
+	unsigned char i;
+	unsigned char m,da;
+	da=IIC_Byte;
+	for(i=0;i<8;i++)		
+	{
+			m=da;
+			OLED_SCLK_LOW();
+		m=m&0x80;
+		if(m==0x80)
+		{OLED_SDIN_HIGH();}
+		else OLED_SDIN_LOW();
+			da=da<<1;
+		OLED_SCLK_HIGH();
+		}
+
+	OLED_SCLK_LOW();
+	OLED_SCLK_HIGH() ;
+}
+
+void WriteCmd(unsigned char cmd)//写命令
+{
+		IIC_Start();
+		I2C_WriteByte(0x78);            //Slave address,SA0=0
+		I2C_WriteByte(0x00);			//write command
+		I2C_WriteByte(cmd); 
+		IIC_Stop();
+}
+
+void WriteDat(unsigned char dat)//写数据
+{
+		IIC_Start();
+		I2C_WriteByte(0x78);            //Slave address,SA0=0
+		I2C_WriteByte(0x40);			//write command
+		I2C_WriteByte(dat); 
+		IIC_Stop();
+}
+
+void OLED_FILL(unsigned char BMP[])
+{
+	u8 i,j;
+	unsigned char *p;
+	p=BMP;
+
+  for(i=0;i<8;i++)
+	{
+		WriteCmd(0xb0+i);		//page0-page1
+		WriteCmd(0x00);		//low column start address
+		WriteCmd(0x10);	
+
+		for(j=0;j<128;j++)
+		{
+			WriteDat(*p++);
+		}
+	}
+		
+}
+
 #elif  (TRANSFER_METHOD ==HW_SPI)
 
 	#define OLED_RESET_LOW()					GPIO_ResetBits(SPI_RES_GPIOX, SPI_RES_PIN)	//低电平复位

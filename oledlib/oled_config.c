@@ -9,7 +9,7 @@ unsigned int OledTimeMs=0;
 //初始化图形库，请将硬件初始化信息放入此中
 void DriverInit(void)
 {
-	#if (TRANSFER_METHOD ==HW_IIC)
+	#if (TRANSFER_METHOD ==SW_IIC)
 	I2C_Configuration();
 	#elif (TRANSFER_METHOD ==HW_SPI)
 	SPI_Configuration();

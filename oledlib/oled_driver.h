@@ -27,7 +27,16 @@
 	
 #elif (TRANSFER_METHOD ==SW_IIC)
 
-
+	#if (USE_HW_IIC ==IIC_1)
+		#define OLED_ADDRESS	0x78 //通过调整0R电阻,屏可以0x78和0x7A两个地址 -- 默认0x78
+		/*STM32F103C8T6芯片的硬件I2C: PB6 -- SCL; PB7 -- SDA */
+		#define IIC_RCC_APB1Periph_I2CX   	RCC_APB1Periph_I2C1
+		#define IIC_RCC_APB2Periph_GPIOX  	RCC_APB2Periph_GPIOB
+		#define IIC_GPIOX                		GPIOB
+		#define IIC_SCL_Pin_X								GPIO_Pin_6
+		#define IIC_SDA_Pin_X        				GPIO_Pin_7
+		#define I2CX                  			I2C1
+  #endif
 
 #elif (TRANSFER_METHOD ==HW_SPI)
 	
@@ -61,16 +70,16 @@
 
 #endif
 
-void I2C_Configuration(void);
-void I2C_WriteByte(uint8_t addr,uint8_t data);
-void SPI_Configuration(void);
-void SPI_WriterByte(unsigned char dat);
-void WriteCmd(unsigned char cmd);
-void WriteDat(unsigned char Dat);
-void OLED_Init(void);
-void OLED_CLS(void);
-void OLED_ON(void);
-void OLED_OFF(void);
-void OLED_FILL(unsigned char BMP[]);
+	void I2C_Configuration(void);
+	void I2C_WriteByte(unsigned char IIC_Byte);
+	void SPI_Configuration(void);
+	void SPI_WriterByte(unsigned char dat);
+	void WriteCmd(unsigned char cmd);
+	void WriteDat(unsigned char dat);
+	void OLED_Init(void);
+	void OLED_CLS(void);
+	void OLED_ON(void);
+	void OLED_OFF(void);
+	void OLED_FILL(unsigned char BMP[]);
 
 #endif //__OLED_DRIVER_H
